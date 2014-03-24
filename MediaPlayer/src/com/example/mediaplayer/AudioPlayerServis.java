@@ -8,7 +8,7 @@ import android.os.Binder;
 import android.os.IBinder;
 
 public class AudioPlayerServis extends Service implements OnCompletionListener {
-	statusPlayer status = statusPlayer.IDLE;
+	statusPlayer status;
 	MediaPlayer Player;
 	private final IBinder mBinder = new LocalBinder();
 
@@ -17,6 +17,12 @@ public class AudioPlayerServis extends Service implements OnCompletionListener {
 			return AudioPlayerServis.this;
 		}
 	}
+
+	@Override
+	public void onCreate() {
+		status = statusPlayer.IDLE;
+		createPlayer();
+	};
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -32,8 +38,7 @@ public class AudioPlayerServis extends Service implements OnCompletionListener {
 
 		switch (status) {
 		case IDLE:
-
-			createPlayer();
+			
 			Player.start();
 			status = statusPlayer.PLAYING;
 

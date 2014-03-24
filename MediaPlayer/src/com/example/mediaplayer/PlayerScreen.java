@@ -23,9 +23,11 @@ public class PlayerScreen extends Activity {
 	Button playButton;
 	Intent intent;
 	BroadcastReceiver broadcastResiverServis;
-	public final static String BROADCAST_ACTION = "musicstopped";//"ru.startandroid.develop.p0961servicebackbroadcast";
+	public final static String BROADCAST_ACTION = "musicstopped";
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player_screen);
 
@@ -41,17 +43,22 @@ public class PlayerScreen extends Activity {
 				status = statusPlayer.IDLE;
 				changeTitel(status);
 			}
+
 		};
-		  IntentFilter intFilt = new IntentFilter(BROADCAST_ACTION);
-		  registerReceiver(broadcastResiverServis, intFilt);
+		IntentFilter intFilt = new IntentFilter(BROADCAST_ACTION);
+		registerReceiver(broadcastResiverServis, intFilt);
+
+		// getStatus();
+	}
+
+	public void getStatus() {// not working, mBound=false always
+
+		if (mBound) {
+			status = mService.getStatusPlayer();
+			changeTitel(status);
+		}
 
 	}
-	
-	 protected void onDestroy() {
-		    super.onDestroy();
-
-		    unregisterReceiver(broadcastResiverServis);
-		  }
 
 	public void pressButton(View v) {
 
@@ -87,8 +94,17 @@ public class PlayerScreen extends Activity {
 		}
 	}
 
-	private ServiceConnection mConnection = new ServiceConnection() {
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(broadcastResiverServis);
+		// if (mConnection != null) {
+		// / unbindService(mConnection);
+		// mConnection = null;
+		// }
+	}
 
+	private ServiceConnection mConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder service) {
 
 			LocalBinder binder = (LocalBinder) service;
