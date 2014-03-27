@@ -4,6 +4,8 @@ import com.example.mediaplayer.AudioPlayerServis.LocalBinder;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -12,18 +14,21 @@ import android.content.Intent;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
 
-public class PlayerScreen extends Activity {
-	AudioPlayerServis mService;
-	boolean mBound = false;
-	statusPlayer status;
-	TextView statusSong;
-	Button playButton;
-	Intent intent;
-	BroadcastReceiver broadcastResiverServis;
+public class PlayerScreen extends Activity implements OnSeekBarChangeListener {
+	private AudioPlayerServis audioPlayerService;
+	private boolean audioPlayerServisBound = false;
+	private statusPlayer statusAudioPlayer;
+	private TextView statusAudioPlayerText;
+	private Button playButton;
+	private Intent intentAudioPlayer;
+	private BroadcastReceiver broadcastResiverServis;
 	public final static String BROADCAST_ACTION = "musicstopped";
+	private final int maxVolume = 15;
+	private AudioManager audioManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,63 +36,63 @@ public class PlayerScreen extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player_screen);
 
-		statusSong = (TextView) findViewById(R.id.TextStatus);
+		statusAudioPlayerText = (TextView) findViewById(R.id.statusAudioPlayerText);
 		playButton = (Button) findViewById(R.id.PlayButton);
+		SeekBar seekBarVolume = (SeekBar) findViewById(R.id.seekBarVolume);
+		seekBarVolume.setOnSeekBarChangeListener(this);
 
-		intent = new Intent(this, AudioPlayerServis.class);
-		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+		intentAudioPlayer = new Intent(this, AudioPlayerServis.class);
+		startService(intentAudioPlayer);
+		bindService(intentAudioPlayer, mConnection, Context.BIND_AUTO_CREATE);
+
+		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, 0);
 
 		broadcastResiverServis = new BroadcastReceiver() {
 
 			public void onReceive(Context context, Intent intent) {
-				status = statusPlayer.IDLE;
-				changeTitel(status);
+				statusAudioPlayer = statusPlayer.IDLE;
+				changeTitle(statusAudioPlayer);
 			}
 
 		};
 		IntentFilter intFilt = new IntentFilter(BROADCAST_ACTION);
 		registerReceiver(broadcastResiverServis, intFilt);
 
-		// getStatus();
-	}
-
-	public void getStatus() {// not working, mBound=false always
-
-		if (mBound) {
-			status = mService.getStatusPlayer();
-			changeTitel(status);
-		}
-
 	}
 
 	public void pressButton(View v) {
 
-		if (mBound) {
-			mService.pressButtonPlay();
-			status = mService.getStatusPlayer();
-			changeTitel(status);
+		if (audioPlayerServisBound) {
+			audioPlayerService.pressButtonPlay();
+			getStatus();
 		}
 	}
+	
+	private void getStatus() {
+		statusAudioPlayer = audioPlayerService.getStatusPlayer();
+		changeTitle(statusAudioPlayer);
+	}
 
-	private void changeTitel(statusPlayer status) {
-		switch (status) {
+	private void changeTitle(statusPlayer statusAudioPlayer) {
+		switch (statusAudioPlayer) {
 		case IDLE:
 
-			statusSong.setText(R.string.status_idle);
+			statusAudioPlayerText.setText(R.string.status_idle);
 			playButton.setText(R.string.button_play);
 
 			break;
 
 		case PLAYING:
 
-			statusSong.setText(R.string.status_play);
+			statusAudioPlayerText.setText(R.string.status_play);
 			playButton.setText(R.string.button_paused);
 
 			break;
 
 		case PAUSED:
 
-			statusSong.setText(R.string.status_paused);
+			statusAudioPlayerText.setText(R.string.status_paused);
 			playButton.setText(R.string.button_play);
 
 			break;
@@ -97,23 +102,38 @@ public class PlayerScreen extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		unregisterReceiver(broadcastResiverServis);
-		// if (mConnection != null) {
-		// / unbindService(mConnection);
-		// mConnection = null;
-		// }
-	}
+		if (mConnection != null) {
+			unbindService(mConnection);
+			mConnection = null;
+		}
+	};
 
 	private ServiceConnection mConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder service) {
 
 			LocalBinder binder = (LocalBinder) service;
-			mService = binder.getService();
-			mBound = true;
+			audioPlayerService = binder.getService();
+			audioPlayerServisBound = true;
+			getStatus();
 		}
 
 		public void onServiceDisconnected(ComponentName arg0) {
-			mBound = false;
+			audioPlayerServisBound = false;
 		}
 	};
+
+	@Override
+	public void onProgressChanged(SeekBar seekBar, int progress,
+			boolean fromUser) {
+		int setVolume = (int) (progress * maxVolume / 100);
+		audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, setVolume, 0);
+	}
+
+	@Override
+	public void onStartTrackingTouch(SeekBar seekBar) {
+	}
+
+	@Override
+	public void onStopTrackingTouch(SeekBar seekBar) {
+	}
 }

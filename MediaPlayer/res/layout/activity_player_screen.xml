@@ -17,7 +17,7 @@
         android:text="@string/song_name" />
 
     <TextView
-        android:id="@+id/TextStatus"
+        android:id="@+id/statusAudioPlayerText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/status_idle" />
@@ -29,5 +29,10 @@
         android:layout_marginTop="47dp"
         android:onClick="pressButton"
         android:text="@string/button_play" />
+
+    <SeekBar
+        android:id="@+id/seekBarVolume"
+        android:layout_width="190dp"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

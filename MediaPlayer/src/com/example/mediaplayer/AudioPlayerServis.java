@@ -7,11 +7,12 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Binder;
 import android.os.IBinder;
 
-public class AudioPlayerServis extends Service implements OnCompletionListener {
-	statusPlayer status;
-	MediaPlayer Player;
-	private final IBinder mBinder = new LocalBinder();
 
+public class AudioPlayerServis extends Service implements OnCompletionListener {
+	private statusPlayer statusAudioPlayer;
+	private MediaPlayer audioPlayer;
+	private final IBinder audioPlayerServisBinder = new LocalBinder();
+	
 	public class LocalBinder extends Binder {
 		AudioPlayerServis getService() {
 			return AudioPlayerServis.this;
@@ -19,54 +20,46 @@ public class AudioPlayerServis extends Service implements OnCompletionListener {
 	}
 
 	@Override
-	public void onCreate() {
-		status = statusPlayer.IDLE;
+	public void onCreate() {		
+		statusAudioPlayer = statusPlayer.IDLE;
 		createPlayer();
 	};
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		return mBinder;
+		return audioPlayerServisBinder;
 	}
 
-	public void createPlayer() {
-		Player = MediaPlayer.create(this, R.raw.music);
-		Player.setOnCompletionListener(this);
+	private void createPlayer() {
+		audioPlayer = MediaPlayer.create(this, R.raw.music);
+		audioPlayer.setOnCompletionListener(this);
 	}
 
 	public void pressButtonPlay() {
 
-		switch (status) {
+		switch (statusAudioPlayer) {
 		case IDLE:
-			
-			Player.start();
-			status = statusPlayer.PLAYING;
+		case PAUSED:
+			audioPlayer.start();
+			statusAudioPlayer = statusPlayer.PLAYING;
 
 			break;
 		case PLAYING:
-
-			Player.pause();
-			status = statusPlayer.PAUSED;
-
-			break;
-		case PAUSED:
-
-			Player.start();
-			status = statusPlayer.PLAYING;
+			audioPlayer.pause();
+			statusAudioPlayer = statusPlayer.PAUSED;
 
 			break;
 		}
 	}
 
 	public statusPlayer getStatusPlayer() {
-		return status;
+		return statusAudioPlayer;
 	}
 
 	@Override
 	public void onCompletion(MediaPlayer mp) {
-		status = statusPlayer.IDLE;
+		statusAudioPlayer = statusPlayer.IDLE;
 		Intent intent = new Intent(PlayerScreen.BROADCAST_ACTION);
 		sendBroadcast(intent);
 	}
-
 }

@@ -986,7 +986,6 @@ containing a value of this type.
     public static final class id {
         public static final int PlayButton=0x7f06003e;
         public static final int TextSongName=0x7f06003c;
-        public static final int TextStatus=0x7f06003d;
         public static final int action_bar=0x7f06001c;
         public static final int action_bar_activity_content=0x7f060015;
         public static final int action_bar_container=0x7f06001b;
@@ -998,7 +997,7 @@ containing a value of this type.
         public static final int action_menu_divider=0x7f060016;
         public static final int action_menu_presenter=0x7f060017;
         public static final int action_mode_close_button=0x7f060024;
-        public static final int action_settings=0x7f06003f;
+        public static final int action_settings=0x7f060040;
         public static final int activity_chooser_view_content=0x7f060025;
         public static final int always=0x7f06000b;
         public static final int beginning=0x7f060011;
@@ -1036,11 +1035,13 @@ containing a value of this type.
         public static final int search_plate=0x7f060036;
         public static final int search_src_text=0x7f060037;
         public static final int search_voice_btn=0x7f06003b;
+        public static final int seekBarVolume=0x7f06003f;
         public static final int shortcut=0x7f06002e;
         public static final int showCustom=0x7f060007;
         public static final int showHome=0x7f060004;
         public static final int showTitle=0x7f060006;
         public static final int split_action_bar=0x7f06001e;
+        public static final int statusAudioPlayerText=0x7f06003d;
         public static final int submit_area=0x7f060039;
         public static final int tabMode=0x7f060002;
         public static final int title=0x7f06002b;

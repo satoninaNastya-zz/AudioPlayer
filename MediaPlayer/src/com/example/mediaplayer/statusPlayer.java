@@ -1,5 +1,5 @@
 package com.example.mediaplayer;
 
 public enum statusPlayer {
-PLAYING, PAUSED, IDLE
+	PLAYING, PAUSED, IDLE
 }
